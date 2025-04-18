@@ -48,9 +48,14 @@ export default function RegisterPage() {
         const data = await response.json()
         throw new Error(data.error || "Registration failed")
       }
+      const data = await response.json()
 
-      // Redirect to the home page
-      router.push("/")
+      // Redirect based on role in the response
+      if (data.user?.role === "admin") {
+        router.push("/admin/dashboard")
+      } else {
+        router.push("/profile")
+      }
       router.refresh()
     } catch (err) {
       setError(err instanceof Error ? err.message : "Registration failed")

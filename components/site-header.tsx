@@ -21,20 +21,29 @@ export function SiteHeader() {
   const pathname = usePathname()
   const [isScrolled, setIsScrolled] = useState(false)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [user, setUser] = useState<{ name: string; role: string } | null>(null)
+  const [user, setUser] = useState<{ name: string; role: string; profilePhotoUrl?: string } | null>(null)
 
-  // Check if user is authenticated (this would be replaced with actual auth check)
+  // Check if user is authenticated (fetch real user info now)
   useEffect(() => {
-    // Simulate auth check
     const checkAuth = async () => {
-      // In a real app, you would check the auth state here
-      // For now, we'll just simulate it
-      setIsAuthenticated(false)
-      setUser(null)
+      try {
+        const res = await fetch("/api/users")
+        if (res.ok) {
+          const data = await res.json()
+          setUser(data.user)
+          setIsAuthenticated(true)
+        } else {
+          setIsAuthenticated(false)
+          setUser(null)
+        }
+      } catch {
+        setIsAuthenticated(false)
+        setUser(null)
+      }
     }
-
     checkAuth()
-  }, [])
+    // Refetch whenever the route/path changes
+  }, [pathname])
 
   // Handle scroll effect
   useEffect(() => {
@@ -55,9 +64,8 @@ export function SiteHeader() {
 
   return (
     <header
-      className={`sticky top-0 z-50 w-full transition-all duration-200 ${
-        isScrolled ? "bg-background/80 backdrop-blur-md border-b shadow-sm" : "bg-transparent"
-      }`}
+      className={`sticky top-0 z-50 w-full transition-all duration-200 ${isScrolled ? "bg-background/80 backdrop-blur-md border-b shadow-sm" : "bg-transparent"
+        }`}
     >
       <div className="container flex h-16 items-center justify-between py-4">
         <div className="flex items-center gap-6 md:gap-8">
@@ -83,9 +91,8 @@ export function SiteHeader() {
               >
                 <Link
                   href={item.href}
-                  className={`text-sm font-medium transition-colors hover:text-primary ${
-                    pathname === item.href ? "text-primary" : "text-muted-foreground"
-                  }`}
+                  className={`text-sm font-medium transition-colors hover:text-primary ${pathname === item.href ? "text-primary" : "text-muted-foreground"
+                    }`}
                 >
                   {item.label}
                 </Link>
@@ -102,7 +109,7 @@ export function SiteHeader() {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-10 w-10 rounded-full" aria-label="User menu">
                   <Avatar className="h-10 w-10 border-2 border-primary/20">
-                    <AvatarImage src="/placeholder.svg" alt={user?.name || "User"} />
+                    <AvatarImage src={user?.profilePhotoUrl || "/placeholder.svg"} alt={user?.name || "User"} />
                     <AvatarFallback>{user?.name?.charAt(0) || "U"}</AvatarFallback>
                   </Avatar>
                 </Button>
@@ -183,9 +190,8 @@ export function SiteHeader() {
                     <Link
                       key={item.href}
                       href={item.href}
-                      className={`text-lg font-medium transition-colors hover:text-primary px-2 py-1 ${
-                        pathname === item.href ? "text-primary" : "text-muted-foreground"
-                      }`}
+                      className={`text-lg font-medium transition-colors hover:text-primary px-2 py-1 ${pathname === item.href ? "text-primary" : "text-muted-foreground"
+                        }`}
                     >
                       {item.label}
                     </Link>
@@ -197,7 +203,7 @@ export function SiteHeader() {
                     <div className="space-y-4">
                       <div className="flex items-center gap-4 px-2">
                         <Avatar className="h-10 w-10">
-                          <AvatarImage src="/placeholder.svg" alt={user?.name || "User"} />
+                          <AvatarImage src={user?.profilePhotoUrl || "/placeholder.svg"} alt={user?.name || "User"} />
                           <AvatarFallback>{user?.name?.charAt(0) || "U"}</AvatarFallback>
                         </Avatar>
                         <div>

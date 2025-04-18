@@ -43,8 +43,14 @@ export default function LoginPage() {
         throw new Error(data.error || "Login failed")
       }
 
-      // Redirect to the callback URL or home page
-      router.push(callbackUrl)
+      const data = await response.json()
+
+      // Redirect based on role in the response
+      if (data.user?.role === "admin") {
+        router.push("/admin/dashboard")
+      } else {
+        router.push("/profile")
+      }
       router.refresh()
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed")
